@@ -1,10 +1,11 @@
-package com.aquariux.tradingservice.entity;
+package com.aquariux.userservice.entity;
 
-import com.aquariux.tradingservice.enums.CoinPairEnum;
+import com.aquariux.userservice.enums.UserStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Column;
@@ -15,27 +16,26 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "latest_best_price")
+@Table(name = "user_management")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class LatestBestPriceEntity {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String email;
+    @Column(name = "user_status")
     @Enumerated(EnumType.STRING)
-    @Column(name = "coin_pair")
-    private CoinPairEnum coinPair;
-    @Column(scale = 8, precision = 20)
-    private BigDecimal bidPrice;
-    @Column(scale = 8, precision = 20)
-    private BigDecimal askPrice;
-    @UpdateTimestamp
+    private UserStatusEnum userStatus;
+    @Column(name = "created_at")
+    @CreationTimestamp
+    private LocalDateTime createdAt;
     @Column(name = "updated_at")
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
