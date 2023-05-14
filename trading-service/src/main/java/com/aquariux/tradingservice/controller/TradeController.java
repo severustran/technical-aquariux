@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/trading")
+@RequestMapping("/trade")
 @RequiredArgsConstructor
 @Slf4j
-public class TradingController {
+public class TradeController {
 
 }
