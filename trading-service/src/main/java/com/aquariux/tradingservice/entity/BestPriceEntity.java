@@ -30,7 +30,9 @@ public class BestPriceEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "coin_pair")
     private CoinPairEnum coinPair;
+    @Column(scale = 8, precision = 20)
     private BigDecimal bidPrice;
+    @Column(scale = 8, precision = 20)
     private BigDecimal askPrice;
     @Enumerated(EnumType.STRING)
     private ExchangeEnum exchange;
