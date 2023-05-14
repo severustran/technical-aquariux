@@ -1,5 +1,6 @@
 package com.aquariux.tradingservice.entity;
 
+import com.aquariux.tradingservice.enums.CoinPairEnum;
 import com.aquariux.tradingservice.enums.TradingTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,9 @@ public class TransactionEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "trading_type")
     private TradingTypeEnum tradingType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "coin_pair")
+    private CoinPairEnum coinPair;
     @Column(scale = 8, precision = 20)
     private BigDecimal price;
     @Column(scale = 8, precision = 20)

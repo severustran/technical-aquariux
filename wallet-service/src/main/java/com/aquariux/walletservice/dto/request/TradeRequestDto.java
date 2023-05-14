@@ -1,4 +1,4 @@
-package com.aquariux.tradingservice.dto.request;
+package com.aquariux.walletservice.dto.request;
 
 import lombok.Builder;
 
