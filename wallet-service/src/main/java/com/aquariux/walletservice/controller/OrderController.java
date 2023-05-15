@@ -14,8 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderController {
     private final UserWalletService userWalletService;
-    @PostMapping
+    @PostMapping("/buy-verify")
     public ResponseEntity<Boolean> verifyAndBlockBalance(@RequestBody TradeRequestDto requestDto) {
         return ResponseEntity.ok(userWalletService.verifyAndBlockBalance(requestDto));
+    }
+
+    @PostMapping("/sell-verify")
+    public ResponseEntity<Boolean> verifyAndCheckAvailableWalletBalance(@RequestBody TradeRequestDto requestDto) {
+        return ResponseEntity.ok(userWalletService.verifyAndCheckAvailableWalletBalance(requestDto));
     }
 }

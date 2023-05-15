@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +29,7 @@ public class UserWalletService {
     private final UserWalletRepository userWalletRepository;
     private final CoinPairRepository coinPairRepository;
     private final UserClient userClient;
+    @Transactional(readOnly = true)
     public List<UserWalletResponseDto> getUserWalletsBalance(Long userId) {
         List<UserWalletResponseDto> userWallets = new ArrayList<>();
         ResponseEntity<UserDto> user = userClient.getUser(userId);
@@ -56,25 +56,71 @@ public class UserWalletService {
     public boolean verifyAndBlockBalance(TradeRequestDto requestDto) {
         CoinPairEntity coinPairEntity = coinPairRepository.findByCoinPair(CoinPairEnum.fromString(requestDto.coinPair()))
                 .orElseThrow(() -> new EntityNotFoundException("Not Found Coin Pair %s" + requestDto.coinPair()));
-        UserWalletEntity userWallet = userWalletRepository.findByCoinPairAndUserId(coinPairEntity, requestDto.userId())
-                .orElseThrow(() -> new EntityNotFoundException("Not found wallet coin pair %s of userId %s " + requestDto.coinPair() + requestDto.userId()));
-
-        if (userWallet.getStatus().equals(WalletStatusEnum.BLOCKED)) {
-            return false;
+        List<UserWalletEntity> wallets = userWalletRepository.findAllByUserId(requestDto.userId());
+        if (wallets.isEmpty()) {
+            throw new EntityNotFoundException("Not found wallet coin pair %s of userId %s" + requestDto.userId());
         }
 
-        BigDecimal balance = userWallet.getBalance();
-        BigDecimal blockedBalance = userWallet.getBlockedBalance();
-        BigDecimal orderBalance = requestDto.price().multiply(requestDto.quantity());
+        for (UserWalletEntity userWallet : wallets) {
+            if (userWallet.getCoinPair().getCoinPair().equals(coinPairEntity.getCoinPair())) {
+                BigDecimal balance = userWallet.getBalance();
+                BigDecimal blockedBalance = userWallet.getBlockedBalance();
+                BigDecimal orderBalance = requestDto.price().multiply(requestDto.quantity());
 
-        if (orderBalance.compareTo(balance) > 0) {
-            log.info("Insufficient Wallet Balance");
-            return false;
+                if (userWallet.getStatus().equals(WalletStatusEnum.BLOCKED)) {
+                    log.info("Wallet {} is blocked", userWallet.getCoinPair().getCoinPair());
+                    return false;
+                }
+
+                if (orderBalance.compareTo(balance) > 0) {
+                    log.info("Insufficient Wallet {} Balance", userWallet.getCoinPair().getCoinPair());
+                    return false;
+                }
+                userWallet.setBlockedBalance(blockedBalance.add(orderBalance));
+                userWalletRepository.save(userWallet);
+                userWalletRepository.updateWalletBalance(requestDto.userId(), balance.subtract(orderBalance));
+                break;
+            }
         }
+        return true;
+    }
 
-        userWallet.setBalance(balance.subtract(orderBalance));
-        userWallet.setBlockedBalance(blockedBalance.add(orderBalance));
-        userWalletRepository.save(userWallet);
+    @Transactional
+    public boolean verifyAndCheckAvailableWalletBalance(TradeRequestDto requestDto) {
+        CoinPairEntity coinPairEntity = coinPairRepository.findByCoinPair(CoinPairEnum.fromString(requestDto.coinPair()))
+                .orElseThrow(() -> new EntityNotFoundException("Not Found Coin Pair %s" + requestDto.coinPair()));
+        List<UserWalletEntity> wallets = userWalletRepository.findAllByUserId(requestDto.userId());
+
+        if (wallets.isEmpty()) {
+            throw new EntityNotFoundException("Not found wallet coin pair %s of userId %s" + requestDto.userId());
+        }
+        for (UserWalletEntity userWallet : wallets) {
+            if (userWallet.getCoinPair().getCoinPair().equals(coinPairEntity.getCoinPair())) {
+                BigDecimal balance = userWallet.getBalance();
+                BigDecimal availableBalance = userWallet.getAvailableBalance();
+                BigDecimal blockedBalance = userWallet.getBlockedBalance();
+                BigDecimal orderBalance = requestDto.price().multiply(requestDto.quantity());
+
+                if (userWallet.getStatus().equals(WalletStatusEnum.BLOCKED)) {
+                    log.info("Wallet {} is blocked", userWallet.getCoinPair().getCoinPair());
+                    return false;
+                }
+
+                if (availableBalance.compareTo(BigDecimal.ZERO) <= 0) {
+                    log.info("Insufficient Wallet {} Balance", userWallet.getCoinPair().getCoinPair());
+                    return false;
+                }
+
+                if (availableBalance.compareTo(orderBalance) >= 0 && orderBalance.compareTo(BigDecimal.ZERO) > 0 ) {
+                    userWallet.setAvailableBalance(availableBalance.subtract(orderBalance));
+                    userWallet.setBlockedBalance(blockedBalance.add(orderBalance));
+                    userWalletRepository.save(userWallet);
+                }
+
+                userWalletRepository.updateWalletBalance(requestDto.userId(), balance.subtract(orderBalance));
+                break;
+            }
+        }
         return true;
     }
 }

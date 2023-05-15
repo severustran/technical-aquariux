@@ -1,7 +1,6 @@
 package com.aquariux.tradingservice.controller;
 
 import com.aquariux.tradingservice.dto.request.OrderRequestDto;
-import com.aquariux.tradingservice.dto.request.TradeRequestDto;
 import com.aquariux.tradingservice.dto.response.ResponseDto;
 import com.aquariux.tradingservice.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +25,7 @@ public class TradeController {
     }
 
     @PostMapping("/sell")
-    public ResponseEntity<ResponseDto> sell(@RequestHeader Long userId, @RequestBody TradeRequestDto requestDto) {
-        return null;
+    public ResponseEntity<ResponseDto> sell(@RequestHeader Long userId, @RequestBody OrderRequestDto requestDto) {
+        return ResponseEntity.ok(transactionService.sell(userId, requestDto));
     }
 }

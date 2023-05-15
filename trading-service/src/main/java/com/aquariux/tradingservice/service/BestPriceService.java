@@ -2,6 +2,7 @@ package com.aquariux.tradingservice.service;
 
 import com.aquariux.tradingservice.client.BinanceClient;
 import com.aquariux.tradingservice.client.HoubiClient;
+import com.aquariux.tradingservice.client.UserWalletClient;
 import com.aquariux.tradingservice.dto.BestPriceDto;
 import com.aquariux.tradingservice.dto.BinanceTickerDto;
 import com.aquariux.tradingservice.dto.HoubiResponse;
@@ -34,6 +35,7 @@ public class BestPriceService {
     private final BestPriceRepository bestPriceRepository;
     private final LatestBestPriceRepository latestBestPriceRepository;
     private final BinanceClient binanceClient;
+    private final UserWalletClient userWalletClient;
     private final HoubiClient houbiClient;
     private final ObjectMapper objectMapper;
 

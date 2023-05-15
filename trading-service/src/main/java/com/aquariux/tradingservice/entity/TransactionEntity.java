@@ -2,8 +2,10 @@ package com.aquariux.tradingservice.entity;
 
 import com.aquariux.tradingservice.enums.CoinPairEnum;
 import com.aquariux.tradingservice.enums.TradingTypeEnum;
+import com.aquariux.tradingservice.enums.TransactionStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class TransactionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +35,9 @@ public class TransactionEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "trading_type")
     private TradingTypeEnum tradingType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_status")
+    private TransactionStatusEnum transactionStatus;
     @Enumerated(EnumType.STRING)
     @Column(name = "coin_pair")
     private CoinPairEnum coinPair;

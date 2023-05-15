@@ -16,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -34,6 +35,8 @@ public class CoinPairEntity {
     private CoinPairEnum coinPair;
     @Column(name = "is_active")
     private boolean isActive;
+    @Column(name = "rate_in_usdt", scale = 8, precision = 20)
+    private BigDecimal rateInUSDT;
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
